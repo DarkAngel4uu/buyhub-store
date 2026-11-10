@@ -1,3 +1,2 @@
-// Add your products here. Keep each PDF in a private Cloudflare R2 bucket.
-// Example: { id:"guide-01", name:"My PDF Guide", description:"A short description.", price:5.00, currency:"USD" }
+// Products are managed privately from /admin.html and stored in Netlify Blobs.
 export const products = [];
