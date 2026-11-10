@@ -1,27 +1,21 @@
 # BuyHub setup
 
-This repository is the BuyHub storefront starter. It is not ready to accept payments until the setup below is completed.
+## Private product manager
+After deployment, open `/admin.html` to sign in, upload PDFs (up to 25 MB), set a USD price, publish, and delete products. The dashboard uses a private admin password and an HMAC session secret. Never commit secrets to GitHub or send them in chat.
 
-## 1. Add products
-Add each product to `assets/products.js` and to the `products` allowlist in `netlify/functions/create-payment.mjs`. Each entry needs a matching unique `id`, product name, USD price and private Cloudflare R2 object key (`r2Key` in the function). Keep the PDF private; do not place paid PDFs in the public site folder.
-
-## 2. Cloudflare R2
-Create a private R2 bucket, upload your PDF files, and create R2 API credentials with read access to that bucket. Do not share credentials in chat or commit them to GitHub.
-
-## 3. Netlify environment variables
+## Required Netlify environment variables
 Set these in Netlify Site configuration > Environment variables:
-- `SITE_URL`: your deployed Netlify site URL, including https://
-- `NOWPAYMENTS_API_KEY`: NOWPayments API key
-- `NOWPAYMENTS_IPN_SECRET`: IPN secret from NOWPayments
+- `SITE_URL`: deployed Netlify URL, including https://
+- `ADMIN_PASSWORD`: choose a strong, unique admin password
+- `ADMIN_SESSION_SECRET`: long random secret (at least 32 random characters)
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
+- `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` (only when ready to accept payments)
 
-Only enter secrets in Netlify's environment variable settings, never in source files or GitHub.
+## Cloudflare R2
+Create a private R2 bucket and API credentials. The credentials must permit uploading objects and reading/download signing for the bucket. Do not make the bucket public. The admin issues short-lived signed upload URLs; PDFs remain private and paid downloads are served with short-lived signed URLs.
 
-## 4. Deploy
-Import this GitHub repository into Netlify. Netlify should detect `netlify.toml`; use the repository root as the base and publish directory `.`. Install dependencies from `package.json`. Redeploy after setting environment variables.
-
-## 5. Test before launch
-Use NOWPayments sandbox/test mode if available. Verify the IPN signature, successful payment update, and one-time/short-lived download link. This starter currently has no customer email notifications, refunds workflow, or admin dashboard.
+## Deploy
+After setting the environment variables, trigger a fresh deploy in Netlify. Visit `https://YOUR-SITE.netlify.app/admin.html` and sign in. Upload a PDF, enter its title, description and price, and publish.
 
 ## Important
-NOWPayments and Cloudflare R2 may have fees, minimums, or account requirements. Check their current terms before enabling payments. Netlify free usage limits can change. Do not promise customers a download until a real test order completes successfully.
+This is a starter admin dashboard, not yet audited for production security. It does not currently support product image uploads, customer emails, refunds, or an order-management screen. Payment processing still requires NOWPayments credentials and a successful end-to-end test. Check current provider fees and free-tier limits before accepting orders.
