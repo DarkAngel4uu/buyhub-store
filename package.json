@@ -1,0 +1,1 @@
+{"name":"buyhub-store","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"netlify dev","build":"echo 'Static BuyHub site ready'"},"dependencies":{"@aws-sdk/client-s3":"^3.800.0","@aws-sdk/s3-request-presigner":"^3.800.0","@netlify/blobs":"^8.1.0"},"devDependencies":{"netlify-cli":"^20.0.0"}}
