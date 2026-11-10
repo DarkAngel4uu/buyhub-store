@@ -1,0 +1,9 @@
+import { products } from "./products.js";
+const grid=document.querySelector("#products"), modal=document.querySelector("#checkout");
+let selected=null;
+document.querySelector("#year").textContent=new Date().getFullYear();
+function money(n,c="USD"){return new Intl.NumberFormat("en-US",{style:"currency",currency:c}).format(n)}
+if(products.length){grid.innerHTML="";for(const p of products){const card=document.createElement("article");card.className="product-card";card.innerHTML='<div class="product-icon" aria-hidden="true">📄</div>';const h=document.createElement("h3");h.textContent=p.name;const d=document.createElement("p");d.textContent=p.description;const price=document.createElement("p");price.className="price";price.textContent=money(p.price,p.currency);const b=document.createElement("button");b.className="button primary";b.textContent="Buy PDF";b.addEventListener("click",()=>openCheckout(p));card.append(h,d,price,b);grid.append(card)}}
+function openCheckout(p){selected=p;document.querySelector("#checkout-title").textContent=p.name;document.querySelector("#checkout-price").textContent=money(p.price,p.currency);document.querySelector("#checkout-error").textContent="";modal.hidden=false}
+document.querySelector("#close-checkout").addEventListener("click",()=>modal.hidden=true);
+document.querySelector("#pay-now").addEventListener("click",async()=>{if(!selected)return;const b=document.querySelector("#pay-now"),err=document.querySelector("#checkout-error");b.disabled=true;b.textContent="Creating payment…";err.textContent="";try{const r=await fetch("/.netlify/functions/create-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:selected.id})});const data=await r.json();if(!r.ok)throw new Error(data.error||"Unable to create payment.");location.href=data.invoice_url}catch(e){err.textContent=e.message;b.disabled=false;b.textContent="Continue to payment"}});
