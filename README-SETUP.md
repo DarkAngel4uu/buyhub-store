@@ -1,21 +1,22 @@
 # BuyHub setup
 
 ## Private product manager
-After deployment, open `/admin.html` to sign in, upload PDFs (up to 25 MB), set a USD price, publish, and delete products. The dashboard uses a private admin password and an HMAC session secret. Never commit secrets to GitHub or send them in chat.
+Open `/admin.html` after deployment. Sign in, choose a PDF up to 4 MB, enter its title, description and USD price, and publish. You can delete products from the dashboard. PDFs are stored privately in Netlify Blobs; Cloudflare R2 is not required.
 
 ## Required Netlify environment variables
-Set these in Netlify Site configuration > Environment variables:
-- `SITE_URL`: deployed Netlify URL, including https://
-- `ADMIN_PASSWORD`: choose a strong, unique admin password
-- `ADMIN_SESSION_SECRET`: long random secret (at least 32 random characters)
-- `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
-- `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` (only when ready to accept payments)
+In Netlify > your BuyHub site > Site configuration > Environment variables, add:
+- `ADMIN_PASSWORD`: a strong, unique admin password
+- `ADMIN_SESSION_SECRET`: a long random secret (at least 32 random characters)
+- `SITE_URL`: your deployed site URL including https:// (needed for payments)
+- `NOWPAYMENTS_API_KEY` and `NOWPAYMENTS_IPN_SECRET`: only when ready to accept payments
 
-## Cloudflare R2
-Create a private R2 bucket and API credentials. The credentials must permit uploading objects and reading/download signing for the bucket. Do not make the bucket public. The admin issues short-lived signed upload URLs; PDFs remain private and paid downloads are served with short-lived signed URLs.
+Never commit secrets to GitHub or send them in chat. Enter them only in Netlify's environment variable settings.
 
-## Deploy
-After setting the environment variables, trigger a fresh deploy in Netlify. Visit `https://YOUR-SITE.netlify.app/admin.html` and sign in. Upload a PDF, enter its title, description and price, and publish.
+## PDF storage
+The admin upload function stores PDFs in the private `buyhub-pdfs` Netlify Blobs store. The download function serves a file only after the matching order is marked paid. Netlify Functions have a buffered request limit; the dashboard therefore limits uploads to 4 MB. Netlify's free plan has a monthly usage-credit limit, and downloads count toward bandwidth usage. Check your Netlify usage page regularly.
+
+## Deploy and configure
+After the GitHub changes deploy, open `https://YOUR-SITE.netlify.app/admin.html`. Add the two admin environment variables above, then trigger a fresh deploy so the functions receive them. Sign in and publish a small test PDF.
 
 ## Important
-This is a starter admin dashboard, not yet audited for production security. It does not currently support product image uploads, customer emails, refunds, or an order-management screen. Payment processing still requires NOWPayments credentials and a successful end-to-end test. Check current provider fees and free-tier limits before accepting orders.
+The dashboard is a starter implementation and has not had an independent security audit. Payment processing still requires NOWPayments credentials and a successful end-to-end test. No customer email, refunds, or order-management screen is included. Check current provider fees and Netlify free-plan limits before accepting orders.
