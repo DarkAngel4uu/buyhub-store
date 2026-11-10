@@ -1,0 +1,2 @@
+import {getStore} from "@netlify/blobs";
+export default async req=>{if(req.method!=="GET")return new Response("Method not allowed",{status:405});const s=getStore("buyhub-catalogue");let products=[];try{products=JSON.parse(await s.get("products")||"[]")}catch{}return Response.json({products:products.filter(p=>p.published).map(({id,name,description,price,currency})=>({id,name,description,price,currency}))},{headers:{"Cache-Control":"no-store"}})};
